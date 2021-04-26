@@ -9,5 +9,14 @@ import "fmt"
 
 // Notification from SNS
 func notification(n SNSNotification) {
+	fmt.Println(n.Type)
 	fmt.Println(n.Message)
+	fmt.Println(n.SubscribeURL)
+	fmt.Println(n.UnsubscribeURL)
+	
+	// Detect subscription message
+
+
+
+
 }
