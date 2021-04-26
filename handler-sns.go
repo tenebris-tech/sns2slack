@@ -26,6 +26,7 @@ type SNSNotification struct {
 	Timestamp        string
 	TopicArn         string
 	Type             string
+	SubscribeURL     string
 	UnsubscribeURL   string
 }
 
