@@ -6,6 +6,7 @@
 package main
 
 import (
+	tls "crypto/tls"
 	"fmt"
 	"net/http"
 	"os"
@@ -66,21 +67,59 @@ func main() {
 	listenAddr := config.GetStrDef("listen", "0.0.0.0:8080")
 	HTTPTimeout := config.GetIntDef("HTTPTimeout", 60)
 	HTTPIdleTimeout := config.GetIntDef("HTTPIdleTimeout", 60)
+	useTLS := config.GetBoolDef("tls", false)
+	certFile := config.GetStrDef("certFile", "")
+	keyFile := config.GetStrDef("keyFile", "")
+
+	// Sanity checks
+	if useTLS {
+		if certFile == "" || keyFile == "" {
+			// Log error, print, and bail
+			tmp := "Fatal configuration error. For TLS, both certFile and keyFile must be specified."
+			glog.Error(tmp)
+			fmt.Println(tmp)
+			AppCleanup()
+		}
+	}
 
 	// Instantiate router
 	router := newRouter()
 
 	// Create server
-	s := &http.Server{
-		Addr:              listenAddr,
-		Handler:           router,
-		ReadHeaderTimeout: time.Duration(HTTPTimeout) * time.Second,
-		ReadTimeout:       time.Duration(HTTPTimeout) * time.Second,
-		WriteTimeout:      time.Duration(HTTPTimeout) * time.Second,
-		IdleTimeout:       time.Duration(HTTPIdleTimeout) * time.Second,
-	}
+	var s *http.Server
+	if useTLS {
+		cer, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			tmp := "Fatal error reading cert or key: " + err.Error()
+			glog.Error(tmp)
+			fmt.Println(tmp)
+			AppCleanup()
+		}
 
-	glog.Infof("Starting HTTP server on %s", listenAddr)
+		config := &tls.Config{Certificates: []tls.Certificate{cer}}
+
+		s = &http.Server{
+			Addr:              listenAddr,
+			Handler:           router,
+			TLSConfig:         config,
+			ReadHeaderTimeout: time.Duration(HTTPTimeout) * time.Second,
+			ReadTimeout:       time.Duration(HTTPTimeout) * time.Second,
+			WriteTimeout:      time.Duration(HTTPTimeout) * time.Second,
+			IdleTimeout:       time.Duration(HTTPIdleTimeout) * time.Second,
+		}
+		glog.Infof("Starting HTTPS server on %s", listenAddr)
+
+	} else {
+		s = &http.Server{
+			Addr:              listenAddr,
+			Handler:           router,
+			ReadHeaderTimeout: time.Duration(HTTPTimeout) * time.Second,
+			ReadTimeout:       time.Duration(HTTPTimeout) * time.Second,
+			WriteTimeout:      time.Duration(HTTPTimeout) * time.Second,
+			IdleTimeout:       time.Duration(HTTPIdleTimeout) * time.Second,
+		}
+		glog.Infof("Starting HTTP server on %s", listenAddr)
+	}
 
 	err = s.ListenAndServe()
 	if err != nil {
@@ -91,7 +130,6 @@ func main() {
 
 // AppCleanup handles a graceful exit
 func AppCleanup() {
-	// Log and exit
 	glog.Infof("%s %s stopping", ProductName, ProductVersion)
 	os.Exit(0)
 }
