@@ -6,14 +6,12 @@
 package main
 
 import (
-	tls "crypto/tls"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/tenebris-tech/glog"
 	"main/easyconfig"
@@ -65,8 +63,8 @@ func main() {
 
 	// Get server configuration
 	listenAddr := config.GetStrDef("listen", "0.0.0.0:8080")
-	HTTPTimeout := config.GetIntDef("HTTPTimeout", 60)
-	HTTPIdleTimeout := config.GetIntDef("HTTPIdleTimeout", 60)
+	//HTTPTimeout := config.GetIntDef("HTTPTimeout", 60)
+	//HTTPIdleTimeout := config.GetIntDef("HTTPIdleTimeout", 60)
 	useTLS := config.GetBoolDef("tls", false)
 	certFile := config.GetStrDef("certFile", "")
 	keyFile := config.GetStrDef("keyFile", "")
@@ -86,8 +84,10 @@ func main() {
 	router := newRouter()
 
 	// Create server
-	var s *http.Server
+	//var s *http.Server
 	if useTLS {
+
+		/*
 		cer, err := tls.LoadX509KeyPair(certFile, keyFile)
 		if err != nil {
 			tmp := "Fatal error reading cert or key: " + err.Error()
@@ -107,9 +107,12 @@ func main() {
 			WriteTimeout:      time.Duration(HTTPTimeout) * time.Second,
 			IdleTimeout:       time.Duration(HTTPIdleTimeout) * time.Second,
 		}
+		*/
 		glog.Infof("Starting HTTPS server on %s", listenAddr)
+		err = http.ListenAndServeTLS(listenAddr, certFile, keyFile, router)
 
 	} else {
+		/*
 		s = &http.Server{
 			Addr:              listenAddr,
 			Handler:           router,
@@ -118,10 +121,14 @@ func main() {
 			WriteTimeout:      time.Duration(HTTPTimeout) * time.Second,
 			IdleTimeout:       time.Duration(HTTPIdleTimeout) * time.Second,
 		}
+		 */
 		glog.Infof("Starting HTTP server on %s", listenAddr)
+		err = http.ListenAndServe(listenAddr, router)
 	}
 
-	err = s.ListenAndServe()
+
+
+	//err = s.ListenAndServe()
 	if err != nil {
 		glog.Errorf("HTTP server error: %s", err.Error())
 	}
