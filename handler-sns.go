@@ -49,7 +49,8 @@ func SNSHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		// Send notification for processing
-		notification(n)
+		// Goroutine is used to avoid blocking
+		go notification(n)
 
 		// Success
 		resp.Status = "ok"

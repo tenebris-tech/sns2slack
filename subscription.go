@@ -12,8 +12,8 @@ import (
 
 // confirmSubscription to SNS topic
 func confirmSubscription(url string, arn string) {
-	glog.Infof("Confirming SNS subscription for ARN %s", arn)
 
+	// Confirm URL is a simple HTTP GET
 	resp, err := http.Get(url)
 	if err != nil {
 		glog.Errorf("Confirm SNS subscription for ARN %s failed: %s", arn, err.Error())
