@@ -13,9 +13,11 @@ func notification(n SNSNotification) {
 	fmt.Println(n.Message)
 	fmt.Println(n.SubscribeURL)
 	fmt.Println(n.UnsubscribeURL)
-	
-	// Detect subscription message
 
+	// Detect subscription message
+	if n.Type == "SubscriptionConfirmation" {
+		confirmSubscription(n.SubscribeURL, n.TopicArn)
+	}
 
 
 
