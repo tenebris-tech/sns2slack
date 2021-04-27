@@ -5,7 +5,10 @@
 
 package easyjson
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"errors"
+)
 
 // EasyJSON is used enable class-like behaviour
 type EasyJSON struct {
@@ -68,4 +71,31 @@ func (j *EasyJSON) GetBool(str ...string) (bool, error) {
 func (j *EasyJSON) Pretty() (string, error) {
 	b, err := json.MarshalIndent(j.Data, "", "  ")
 	return string(b), err
+}
+
+func (j *EasyJSON) Get(keys ...string) (interface{}, error) {
+	var p interface{}
+
+	// Get number of keys in search
+	numKeys := len(keys)
+
+	// Starting point
+	p = j.Data
+
+	// Iterate through keys
+	for i, k := range keys {
+		if val, ok := p.(map[string]interface{})[k]; ok {
+			if (i + 1) >= numKeys {
+				// This is the element we want
+				return val, nil
+			}
+
+			// Update our pointer
+			p = val
+
+		} else {
+			return "", errors.New("key not found")
+		}
+	}
+	return "", errors.New("key not found")
 }
