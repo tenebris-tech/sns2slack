@@ -14,7 +14,7 @@ import (
 	"syscall"
 
 	"github.com/tenebris-tech/glog"
-	"main/easyconfig"
+	"sns2slack/easyconfig"
 )
 
 const ProductName = "sns2slack"
