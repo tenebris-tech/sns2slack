@@ -66,6 +66,6 @@ func (j *EasyJSON) GetBool(str ...string) (bool, error) {
 }
 
 func (j *EasyJSON) Pretty() (string, error) {
-	b, err := json.MarshalIndent(j.Data, "", "\t")
+	b, err := json.MarshalIndent(j.Data, "", "  ")
 	return string(b), err
 }
