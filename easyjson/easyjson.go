@@ -64,3 +64,8 @@ func (j *EasyJSON) GetBool(str ...string) (bool, error) {
 	}
 	return vToBool(r)
 }
+
+func (j *EasyJSON) Pretty() (string, error) {
+	b, err := json.MarshalIndent(j.Data, "", "\t")
+	return string(b), err
+}
