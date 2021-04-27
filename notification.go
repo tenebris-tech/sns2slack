@@ -54,9 +54,9 @@ func notification(n SNSNotification) {
 
 	p, err := j.Pretty()
 	if err != nil {
-		fmt.Println("\n", p)
+		fmt.Printf("\nPretty Print Error: %s\n", err.Error())
 	} else {
-		fmt.Println("\nPretty Print Error")
+		fmt.Println("\n", p)
 	}
 	fmt.Println("---")
 
