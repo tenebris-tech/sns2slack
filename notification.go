@@ -46,7 +46,7 @@ func notification(n SNSNotification) {
 
 	description, err := j.GetStr("detail", "description")
 	if err != nil {
-		fmt.Printf("get source: %s\n", err.Error())
+		fmt.Printf("get detail/description: %s\n", err.Error())
 	}
 
 	fmt.Println("Source:", source)
