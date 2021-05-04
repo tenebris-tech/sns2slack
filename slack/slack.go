@@ -42,6 +42,7 @@ func (s *Slack) SendQueue() {
 	var msg Message
 	for {
 		msg = <-s.Queue
-		fmt.Printf("\nTitle: %s\nSource: %s\n\n%s\n", msg.Title, msg.Source, msg.Details)
+		fmt.Printf("\nTitle: %s\nSource: %s\n\n", msg.Title, msg.Source)
+		//fmt.Printf("\nTitle: %s\nSource: %s\n\n%s\n\n", msg.Title, msg.Source, msg.Details)
 	}
 }
