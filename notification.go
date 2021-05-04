@@ -55,7 +55,7 @@ func notification(n SNSNotification) {
 	case "aws.guardduty":
 		msg.Title = j.GetStrDef("", "detail", "description")
 		if msg.Title == "" {
-			j.GetStrDef("Unknown - Please see full message details", "detail", "eventName")
+			msg.Title = j.GetStrDef("Unknown - Please see full message details", "detail", "eventName")
 		}
 		msg.Title = "AWS GuardDuty: " + msg.Title
 	default:
