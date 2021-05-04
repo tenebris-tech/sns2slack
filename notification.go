@@ -7,8 +7,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/tenebris-tech/glog"
 	"sns2slack/easyjson"
+	"sns2slack/slack"
+	"strings"
+
+	"github.com/tenebris-tech/glog"
 )
 
 // Notification from SNS
@@ -41,26 +44,33 @@ func notification(n SNSNotification) {
 
 	source, err := j.GetStr("source")
 	if err != nil {
-		fmt.Printf("get source: %s\n", err.Error())
+		// Unable to get source
+		source = "unknown"
 	}
 
-	description, err := j.GetStr("detail", "description")
+	var msg slack.Message
+	msg.Source = source
+
+	switch strings.ToLower(source) {
+	case "aws.guardduty":
+		msg.Title = j.GetStrDef("", "detail", "description")
+		if msg.Title == "" {
+			j.GetStrDef("Unknown - Please see full message details", "detail", "eventName")
+		}
+		msg.Title = "AWS GuardDuty: " + msg.Title
+	default:
+		msg.Title = j.GetStrDef("", "detail", "description")
+		if msg.Title == "" {
+			j.GetStrDef("Unknown - Please see full message details", "detail", "eventName")
+		}
+		msg.Title = source + ": " + msg.Title
+	}
+
+	msg.Details, err = j.Pretty()
 	if err != nil {
-		fmt.Printf("get detail/description: %s\n", err.Error())
+		msg.Details = fmt.Sprintf("JSON format error: %s\n", err.Error())
 	}
-
-	fmt.Println("Source:", source)
-	fmt.Println("Description:", description)
-
-	p, err := j.Pretty()
-	if err != nil {
-		fmt.Printf("\nPretty Print Error: %s\n", err.Error())
-	} else {
-		fmt.Println("\n", p)
-	}
-	fmt.Println("---")
 
 	// Write to SlackQueue
-	SlackQueue.Add(fmt.Sprintf("Description: %s", description))
-
+	SlackQueue.Add(msg)
 }

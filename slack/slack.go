@@ -10,14 +10,20 @@ import "fmt"
 // Slack is used enable class-like behaviour
 type Slack struct {
 	Enabled bool
-	Queue   chan string
+	Queue   chan Message
+}
+
+type Message struct {
+	Source  string
+	Title   string
+	Details string
 }
 
 // New EasyJSON object
 func New() Slack {
 	var s Slack
 	s.Enabled = true
-	s.Queue = make(chan string)
+	s.Queue = make(chan Message)
 
 	// Start goroutine to send queue
 	go s.SendQueue()
@@ -27,15 +33,15 @@ func New() Slack {
 }
 
 // Add message to queue
-func (s *Slack) Add(str string) {
-	fmt.Println("QUEUED: %s", str)
-	s.Queue <- str
+func (s *Slack) Add(msg Message) {
+	s.Queue <- msg
 }
 
+// SendQueue is started by New() - loop and send queue
 func (s *Slack) SendQueue() {
-	var msg string
+	var msg Message
 	for {
 		msg = <-s.Queue
-		fmt.Printf("***GOT***: %s", msg)
+		fmt.Printf("\nTitle: %s\nSource: %s\n\n%s\n", msg.Title, msg.Source, msg.Details)
 	}
 }

@@ -39,6 +39,21 @@ func (j *EasyJSON) GetStr(str ...string) (string, error) {
 	return vToString(r)
 }
 
+// GetStrDef retrieves an item and returns a string or the supplied default
+func (j *EasyJSON) GetStrDef(def string, str ...string) string {
+	r, err := j.Get(str...)
+	if err != nil {
+		return def
+	}
+
+	rString, err := vToString(r)
+	if err != nil {
+		return def
+	}
+
+	return rString
+}
+
 // GetInt retrieves an item and returns an int or error
 func (j *EasyJSON) GetInt(str ...string) (int, error) {
 	r, err := j.Get(str...)
