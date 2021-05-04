@@ -60,4 +60,7 @@ func notification(n SNSNotification) {
 	}
 	fmt.Println("---")
 
+	// Write to SlackQueue
+	SlackQueue.Add(fmt.Sprintf("Description: %s", description))
+
 }

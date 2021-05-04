@@ -35,6 +35,7 @@ func load(c *EasyConfig, fileName string) error {
 	//noinspection GoUnhandledErrorResult
 	defer file.Close()
 
+	section := ""
 	lineCount := 0
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -51,6 +52,12 @@ func load(c *EasyConfig, fileName string) error {
 			continue
 		}
 
+		// Start of a section?
+		if strings.HasPrefix(line, "[") {
+			section = extractFromBrackets(line)
+			continue
+		}
+
 		// Split line into name value pair
 		name, value, err := nvsplit(line, "=")
 		if err != nil {
@@ -59,7 +66,7 @@ func load(c *EasyConfig, fileName string) error {
 		}
 
 		// Store in map with key (name) forced to lower case
-		c.Data[strings.ToLower(name)] = value
+		c.Data[strings.ToLower(section)+"."+strings.ToLower(name)] = value
 	}
 
 	if err := scanner.Err(); err != nil {

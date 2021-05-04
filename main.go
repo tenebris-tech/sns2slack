@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sns2slack/slack"
 	"strings"
 	"syscall"
 
@@ -19,6 +20,8 @@ import (
 
 const ProductName = "sns2slack"
 const ProductVersion = "0.0.1"
+
+var SlackQueue slack.Slack
 
 func main() {
 	var err error
@@ -62,10 +65,10 @@ func main() {
 	}()
 
 	// Get server configuration
-	listenAddr := config.GetStrDef("listen", "0.0.0.0:8080")
-	useTLS := config.GetBoolDef("tls", false)
-	certFile := config.GetStrDef("certFile", "")
-	keyFile := config.GetStrDef("keyFile", "")
+	listenAddr := config.GetStrDef("server.listen", "0.0.0.0:8080")
+	useTLS := config.GetBoolDef("server.tls", false)
+	certFile := config.GetStrDef("server.certFile", "")
+	keyFile := config.GetStrDef("server.keyFile", "")
 
 	// Sanity checks
 	if useTLS {
@@ -79,7 +82,10 @@ func main() {
 	}
 
 	// Instantiate router
-	router := newRouter()
+	router := newRouter(config)
+
+	// Set up queue, which is global to account for HTTP server concurrency
+	SlackQueue = slack.New()
 
 	// Create server
 	err = nil

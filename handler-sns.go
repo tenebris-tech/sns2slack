@@ -7,8 +7,9 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/tenebris-tech/glog"
 	"net/http"
+
+	"github.com/tenebris-tech/glog"
 )
 
 type SNSResp struct {

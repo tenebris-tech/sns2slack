@@ -6,27 +6,34 @@
 package main
 
 import (
+	"github.com/tenebris-tech/glog"
 	"net/http"
+	"sns2slack/easyconfig"
 
 	"github.com/gorilla/mux"
 )
 
 // Create gorilla/mux router and load routes from route.go
-func newRouter() *mux.Router {
+func newRouter(config easyconfig.EasyConfig) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
-	// Iterate through routes and add
+	// Iterate over routes and add
 	for _, route := range routes {
 		var handler http.Handler
 
-		handler = route.HandlerFunc
-		handler = Logger(handler, route.Name)
+		// Should this route be enabled?
+		if config.GetBoolDef(route.Name+".enable", false) {
 
-		router.
-			Methods(route.Method).
-			Path(route.Pattern).
-			Name(route.Name).
-			Handler(handler)
+			glog.Infof("Server enabling route %s", route.Name)
+			handler = route.HandlerFunc
+			handler = Logger(handler, route.Name)
+
+			router.
+				Methods(route.Method).
+				Path(route.Pattern).
+				Name(route.Name).
+				Handler(handler)
+		}
 	}
 
 	// Add routes for Not Found (404) and Method Not Allowed (405)

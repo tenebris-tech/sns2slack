@@ -30,3 +30,34 @@ func nvsplit(s string, separator string) (string, string, error) {
 
 	return strings.TrimSpace(tmp[0]), strings.TrimSpace(tmp[1]), nil
 }
+
+// extractFromBrackets returns the string between [ and ] or nothing
+func extractFromBrackets(s string) string {
+
+	// Trim leading and trailing spaces
+	s = strings.TrimSpace(s)
+
+	// Must be at least 3 characters long
+	if len(s) < 3 {
+		return ""
+	}
+
+	// Must start with [
+	if !strings.HasPrefix(s, "[") {
+		return ""
+	}
+
+	// Trim off the [
+	tmp := strings.Trim(s, "[")
+
+	// Last character must be ]
+	if tmp[len(tmp)-1:] == "]" {
+		tmp = tmp[:len(tmp)-1]
+	} else {
+		// Delimiter is missing, return ""
+		tmp = ""
+	}
+
+	// Trim leading and trailing spaces
+	return strings.TrimSpace(tmp)
+}

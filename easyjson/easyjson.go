@@ -12,7 +12,6 @@ import (
 
 // EasyJSON is used enable class-like behaviour
 type EasyJSON struct {
-	//Data   map[string]interface{}
 	Data   interface{}
 	Loaded bool
 }
@@ -21,7 +20,6 @@ type EasyJSON struct {
 func New() EasyJSON {
 	var j EasyJSON
 	j.Loaded = false
-	//j.Data = make(map[string]interface{})
 	return j
 }
 
@@ -76,21 +74,23 @@ func (j *EasyJSON) Pretty() (string, error) {
 func (j *EasyJSON) Get(keys ...string) (interface{}, error) {
 	var p interface{}
 
-	// Get number of keys in search
+	// Get number of keys to search
 	numKeys := len(keys)
 
 	// Starting point
 	p = j.Data
 
-	// Iterate through keys
+	// Iterate over keys
 	for i, k := range keys {
 		if val, ok := p.(map[string]interface{})[k]; ok {
+			// Key k exists in map
 			if (i + 1) >= numKeys {
-				// This is the element we want
+				// This is the element requested (last key)
 				return val, nil
 			}
 
-			// Update our pointer
+			// Continue to look for next key
+			// Update the pointer
 			p = val
 
 		} else {
